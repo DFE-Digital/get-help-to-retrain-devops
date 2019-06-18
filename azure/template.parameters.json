@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "value": "s108d01-hellonginx"
+    },
+    "dockerRegistryUrl": {
+      "value": "https://index.docker.io"
+    },
+    "hostingPlanName": {
+      "value": "s108d01-hellonginx-asp"
+    },
+    "hostingEnvironment": {
+      "value": ""
+    },
+    "location": {
+      "value": "West Europe"
+    },
+    "sku": {
+      "value": "PremiumV2"
+    },
+    "workerSize": {
+      "value": "3"
+    },
+    "serverFarmResourceGroup": {
+      "value": "s108d01-core"
+    },
+    "skuCode": {
+      "value": "P1v2"
+    },
+    "subscriptionId": {
+      "value": "f35bd249-3028-48bd-9aab-d00e9d1a56b7"
+    }
+  }
+}
