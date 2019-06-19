@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+    "resourceEnvironmentName": {
+    "value": "sandbox"
+    },
+    "serviceName": {
+    "value": "boilerplate"
+    },
+    "databaseName": {
+    "value": "sandbox"
+    },
+    "databaseUsername": {
+    "value": "devops"
+    },
+    "securityAlertEmail":{ 
+        "value": "miguel.afonso@digital.education.gov.uk"
+    }
+    }
+}
