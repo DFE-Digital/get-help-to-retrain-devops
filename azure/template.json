@@ -1,10 +1,612 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "apiProfile": "",
-  "parameters": {  },
-  "variables": {  },
-  "functions": [  ],
-  "resources": [  ],
-  "outputs": {  }
+  "parameters": {
+      "resourceEnvironmentName": {
+          "type": "string",
+          "metadata": {
+              "description": "The environment of the resource."
+          }
+      },
+      "serviceName": {
+          "type": "string",
+          "metadata": {
+              "description": "The abbreviation of the service name to be used when naming a resource."
+          }
+      },
+      "databaseName": {
+          "type": "string",
+          "metadata": {
+              "description": "The name of the database that the app will connect to."
+          }
+      },
+      "databasePort": {
+          "type": "string",
+          "metadata": {
+              "description": "The default port for the psql server."
+          }
+      },
+      "databaseUsername": {
+          "type": "string",
+          "metadata": {
+              "description": "The username used to connect to the database."
+          }
+      },
+      "databasePassword": {
+          "type": "securestring",
+          "metadata": {
+              "description": "The password used to connect to the database."
+          }
+      },
+      "securityAlertEmail": {
+          "type": "string",
+          "metadata": {
+              "description": "The email address to be used for psql security alerts."
+          }
+      },
+      "keyVaultName": {
+          "type": "string",
+          "defaultValue": "",
+          "metadata": {
+              "description": "The name of the key vault."
+          }
+      },
+      "keyVaultResourceGroup": {
+          "type": "string",
+          "defaultValue": "",
+          "metadata": {
+              "description": "The resource group for the key vault."
+          }
+      },
+      "customHostName": {
+          "type": "string",
+          "defaultValue": "",
+          "metadata": {
+              "description": "The custom hostname to add to the app service."
+          }
+      },
+      "certificateName": {
+          "type": "string",
+          "defaultValue": "",
+          "metadata": {
+              "description": "The name of the certificate in key vault."
+          }
+      },
+      "sentryDSN": {
+          "type": "string",
+          "metadata": {
+              "description": "Connection string for Sentry monitoring."
+          }
+      },
+      "appServicePlanSize": {
+          "type": "string",
+          "allowedValues": [
+              "1",
+              "2",
+              "3"
+          ],
+          "defaultValue": "1"
+      },
+      "appServicePlanInstances": {
+          "type": "int",
+          "defaultValue": 1
+      }
+  },
+  "variables": {
+      "deploymentUrlBase": "https://raw.githubusercontent.com/DFE-Digital/bat-platform-building-blocks/master/templates/",
+      "keyvaultCertificateName": "[if(greater(length(parameters('certificateName')),0), parameters('certificateName'), replace(parameters('customHostName'), '.', '-'))]",
+      "resourceNamePrefix": "[toLower(concat('bat-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
+      "appServiceName": "[concat(variables('resourceNamePrefix'), '-as')]",
+      "workerAppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
+      "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
+      "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
+      "storageAccountName": "[replace(concat(variables('resourceNamePrefix'), 'str'), '-', '')]",
+      "databaseServerName": "[concat(variables('resourceNamePrefix'), '-psql')]"
+  },
+  "resources": [
+      {
+          "condition": "[greater(length(parameters('customHostName')), 0)]",
+          "name": "app-service-certificate",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2017-05-10",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'), 'app-service-certificate.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "keyVaultCertificateName": {
+                      "value": "[variables('keyVaultCertificateName')]"
+                  },
+                  "keyVaultName": {
+                      "value": "[parameters('keyVaultName')]"
+                  },
+                  "keyVaultResourceGroup": {
+                      "value": "[parameters('keyVaultResourceGroup')]"
+                  }
+              }
+          }
+      },
+      {
+          "name": "storage-account",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2017-05-10",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'), 'storage-account.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "storageAccountName": {
+                      "value": "[variables('storageAccountName')]"
+                  }
+              }
+          }
+      },
+      {
+          "apiVersion": "2017-05-10",
+          "name": "postgresql-server",
+          "type": "Microsoft.Resources/deployments",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'),'postgresql-server.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "postgresServerName": {
+                      "value": "[variables('databaseServerName')]"
+                  },
+                  "postgresAdminLogin": {
+                      "value": "[parameters('databaseUsername')]"
+                  },
+                  "postgresAdminPassword": {
+                      "value": "[parameters('databasePassword')]"
+                  },
+                  "securityAlertEmailAddress": {
+                      "value": "[parameters('securityAlertEmail')]"
+                  },
+                  "storageAccountName": {
+                      "value": "[variables('storageAccountName')]"
+                  }
+              }
+          },
+          "dependsOn": [
+              "storage-account"
+          ]
+      },
+      {
+          "apiVersion": "2017-05-10",
+          "name": "postgresql-database",
+          "type": "Microsoft.Resources/deployments",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'),'postgresql-database.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "serverName": {
+                      "value": "[variables('databaseServerName')]"
+                  },
+                  "databaseName": {
+                      "value": "[parameters('databaseName')]"
+                  }
+              }
+          },
+          "dependsOn": [
+              "postgresql-server"
+          ]
+      },
+      {
+          "apiVersion": "2017-05-10",
+          "name": "postgresql-server-firewall-rules",
+          "type": "Microsoft.Resources/deployments",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'),'postgresql-server-firewall-rules.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "firewallRuleNamePrefix": {
+                      "value": "[concat(variables('appServicePlanName'),'-AZURE_IP-')]"
+                  },
+                  "ipAddresses": {
+                      "value": "[reference('app-service').outputs.possibleOutboundIpAddresses.value]"
+                  },
+                  "serverName": {
+                      "value": "[variables('databaseServerName')]"
+                  }
+              }
+          },
+          "dependsOn": [
+              "postgresql-server"
+          ]
+      },
+      {
+          "name": "app-service-plan",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2017-05-10",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'), 'app-service-plan.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "appServicePlanName": {
+                      "value": "[variables('appServicePlanName')]"
+                  },
+                  "appServicePlanOS": {
+                      "value": "Windows"
+                  },
+                  "appServicePlanSize": {
+                      "value": "[parameters('appServicePlanSize')]"
+                  },
+                  "appServicePlanInstances": {
+                      "value": "[parameters('appServicePlanInstances')]"
+                  }
+              }
+          }
+      },
+      {
+          "name": "worker-app-service-plan",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2017-05-10",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'), 'app-service-plan.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "appServicePlanName": {
+                      "value": "[variables('workerAppServicePlanName')]"
+                  },
+                  "appServicePlanOS": {
+                      "value": "Windows"
+                  }
+              }
+          }
+      },
+      {
+          "name": "app-service",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2017-05-10",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'), 'app-service-windows.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "appServiceName": {
+                      "value": "[variables('appServiceName')]"
+                  },
+                  "appServicePlanResourceGroup": {
+                      "value": "[resourceGroup().name]"
+                  },
+                  "appServicePlanName": {
+                      "value": "[variables('appServicePlanName')]"
+                  },
+                  "appServiceAppSettings": {
+                      "value": [
+                          {
+                              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                              "value": "[reference('app-insights').outputs.instrumentationKey.value]"
+                          },
+                          {
+                              "name": "api__key",
+                              "value": "[parameters('manageAPIKey')]"
+                          },
+                          {
+                              "name": "ASPNETCORE_ENVIRONMENT",
+                              "value": "[parameters('aspNetCoreEnvironment')]"
+                          },
+                          {
+                              "name": "auth__oidc__userinfo_endpoint",
+                              "value": "[parameters('signinOidcUserInfoEndpoint')]"
+                          },
+                          {
+                              "name": "azure_signature",
+                              "value": "[parameters('ucasStorageAccountSharedAccessSignature')]"
+                          },
+                          {
+                              "name": "azure_url",
+                              "value": "[parameters('ucasStorageAccountUrl')]"
+                          },
+                          {
+                              "name": "email__api_key",
+                              "value": "[parameters('govNotifyApiKey')]"
+                          },
+                          {
+                              "name": "email__invite_template_id",
+                              "value": "[parameters('govNotifyEmailInviteTemplateId')]"
+                          },
+                          {
+                              "name": "email__template_id",
+                              "value": "[parameters('govNotifyEmailTemplateId')]"
+                          },
+                          {
+                              "name": "email__user",
+                              "value": "[parameters('govNotifyEmailUser')]"
+                          },
+                          {
+                              "name": "email__welcome_template_id",
+                              "value": "[parameters('govNotifyEmailWelcomeTemplateId')]"
+                          },
+                          {
+                              "name": "manage_api_key",
+                              "value": "[parameters('manageAPIKey')]"
+                          },
+                          {
+                              "name": "manage_api_url",
+                              "value": "[parameters('manageAPIUrl')]"
+                          },
+                          {
+                              "name": "MANAGE_COURSES_POSTGRESQL_SERVICE_HOST",
+                              "value": "[reference('postgresql-server').outputs.fullyQualifiedDomainName.value]"
+                          },
+                          {
+                              "name": "MANAGE_COURSES_POSTGRESQL_SERVICE_PORT",
+                              "value": "[parameters('databasePort')]"
+                          },
+                          {
+                              "name": "PG_DATABASE",
+                              "value": "[parameters('databaseName')]"
+                          },
+                          {
+                              "name": "PG_PASSWORD",
+                              "value": "[parameters('databasePassword')]"
+                          },
+                          {
+                              "name": "PG_USERNAME",
+                              "value": "[concat(parameters('databaseUsername'), '@', variables('databaseServerName'))]"
+                          },
+                          {
+                              "name": "POSTGRESQL_SERVICE_PORT",
+                              "value": "[parameters('databasePort')]"
+                          },
+                          {
+                              "name": "snc__api__key",
+                              "value": "[parameters('searchAndCompareAPIKey')]"
+                          },
+                          {
+                              "name": "snc__api__url",
+                              "value": "[parameters('searchAndCompareAPIUrl')]"
+                          },
+                          {
+                              "name": "SENTRY_DSN",
+                              "value": "[parameters('sentryDSN')]"
+                          },
+                          {
+                              "name": "manage_courses_backend__key",
+                              "value": "[parameters('manageCoursesBackendKey')]"
+                          }
+                      ]
+                  },
+                  "customHostName": {
+                      "value": "[parameters('customHostName')]"
+                  },
+                  "certificateThumbprint": {
+                      "value": "[if(greater(length(parameters('customHostname')), 0), reference('app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
+                  }
+              }
+          },
+          "dependsOn": [
+              "app-service-plan"
+          ]
+      },
+      {
+          "name": "worker-app-service",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2017-05-10",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'), 'app-service-windows.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "appServiceName": {
+                      "value": "[variables('workerAppServiceName')]"
+                  },
+                  "appServicePlanResourceGroup": {
+                      "value": "[resourceGroup().name]"
+                  },
+                  "appServicePlanName": {
+                      "value": "[variables('workerAppServicePlanName')]"
+                  },
+                  "appServiceAppSettings": {
+                      "value": [
+                          {
+                              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                              "value": "[reference('worker-app-insights').outputs.instrumentationKey.value]"
+                          },
+                          {
+                              "name": "api__key",
+                              "value": "[parameters('manageAPIKey')]"
+                          },
+                          {
+                              "name": "ASPNETCORE_ENVIRONMENT",
+                              "value": "[parameters('aspNetCoreEnvironment')]"
+                          },
+                          {
+                              "name": "auth__oidc__userinfo_endpoint",
+                              "value": "[parameters('signinOidcUserInfoEndpoint')]"
+                          },
+                          {
+                              "name": "azure_signature",
+                              "value": "[parameters('ucasStorageAccountSharedAccessSignature')]"
+                          },
+                          {
+                              "name": "azure_url",
+                              "value": "[parameters('ucasStorageAccountUrl')]"
+                          },
+                          {
+                              "name": "email__api_key",
+                              "value": "[parameters('govNotifyApiKey')]"
+                          },
+                          {
+                              "name": "email__template_id",
+                              "value": "[parameters('govNotifyEmailTemplateId')]"
+                          },
+                          {
+                              "name": "email__user",
+                              "value": "[parameters('govNotifyEmailUser')]"
+                          },
+                          {
+                              "name": "manage_api_key",
+                              "value": "[parameters('manageAPIKey')]"
+                          },
+                          {
+                              "name": "manage_api_url",
+                              "value": "[parameters('manageAPIUrl')]"
+                          },
+                          {
+                              "name": "MANAGE_COURSES_POSTGRESQL_SERVICE_HOST",
+                              "value": "[reference('postgresql-server').outputs.fullyQualifiedDomainName.value]"
+                          },
+                          {
+                              "name": "PG_DATABASE",
+                              "value": "[parameters('databaseName')]"
+                          },
+                          {
+                              "name": "PG_PASSWORD",
+                              "value": "[parameters('databasePassword')]"
+                          },
+                          {
+                              "name": "PG_USERNAME",
+                              "value": "[concat(parameters('databaseUsername'), '@', variables('databaseServerName'))]"
+                          },
+                          {
+                              "name": "snc__api__key",
+                              "value": "[parameters('searchAndCompareAPIKey')]"
+                          },
+                          {
+                              "name": "snc__api__url",
+                              "value": "[parameters('searchAndCompareAPIUrl')]"
+                          },
+                          {
+                              "name": "manage_courses_backend__key",
+                              "value": "[parameters('manageCoursesBackendKey')]"
+                          }
+                      ]
+                  },
+                  "appServiceConnectionStrings": {
+                      "value": [
+                          {
+                              "name": "AzureWebJobsDashboard",
+                              "connectionString": "[reference('storage-account').outputs.storageConnectionString.value]",
+                              "type": "Custom"
+                          },
+                          {
+                              "name": "AzureWebJobsStorage",
+                              "connectionString": "[reference('storage-account').outputs.storageConnectionString.value]",
+                              "type": "Custom"
+                          }
+                      ]
+                  },
+                  "appServiceVirtualApplications": {
+                      "value": [
+                          {
+                              "virtualPath": "/",
+                              "physicalPath": "site\\wwwroot"
+                          },
+                          {
+                              "virtualPath": "/ManageCourses.CourseExporterUtil",
+                              "physicalPath": "site\\wwwroot\\app_data\\jobs\\triggered\\ManageCourses.CourseExporterUtil"
+                          }
+                      ]
+                  },
+                  "deployStagingSlot": {
+                      "value": false
+                  }
+              }
+          },
+          "dependsOn": [
+              "storage-account",
+              "worker-app-service-plan"
+          ]
+      },
+      {
+          "apiVersion": "2017-05-10",
+          "name": "wkr-postgresql-server-firewall-rules",
+          "type": "Microsoft.Resources/deployments",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'),'postgresql-server-firewall-rules.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "firewallRuleNamePrefix": {
+                      "value": "[concat(variables('workerAppServicePlanName'),'-AZURE_IP-')]"
+                  },
+                  "ipAddresses": {
+                      "value": "[reference('worker-app-service').outputs.possibleOutboundIpAddresses.value]"
+                  },
+                  "serverName": {
+                      "value": "[variables('databaseServerName')]"
+                  }
+              }
+          },
+          "dependsOn": [
+              "postgresql-server"
+          ]
+      },
+      {
+          "apiVersion": "2017-05-10",
+          "name": "app-insights",
+          "type": "Microsoft.Resources/deployments",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'), 'application-insights.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "appInsightsName": {
+                      "value": "[variables('appServiceName')]"
+                  },
+                  "attachedService": {
+                      "value": "[variables('appServiceName')]"
+                  }
+              }
+          }
+      },
+      {
+          "apiVersion": "2017-05-10",
+          "name": "worker-app-insights",
+          "type": "Microsoft.Resources/deployments",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('deploymentUrlBase'), 'application-insights.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "appInsightsName": {
+                      "value": "[variables('workerAppServiceName')]"
+                  },
+                  "attachedService": {
+                      "value": "[variables('workerAppServiceName')]"
+                  }
+              }
+          }
+      }
+  ],
+  "outputs": {
+      "AppServiceName": {
+          "type": "string",
+          "value": "[variables('appServiceName')]"
+      },
+      "WorkerAppServiceName": {
+          "type": "string",
+          "value": "[variables('workerAppServiceName')]"
+      }
+  }
 }
