@@ -40,8 +40,8 @@
     }
   },
   "variables": {
-    "deploymentUrlBase": "https://raw.githubusercontent.com/DFE-Digital/bat-platform-building-blocks/master/templates/",
-    "resourceNamePrefix": "[toLower(concat('bat-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
+    "deploymentUrlBase": "https://raw.githubusercontent.com/DFE-Digital/get-help-to-retrain-devops/master/templates/",
+    "resourceNamePrefix": "[toLower(concat( parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
     "appServiceName": "[concat(variables('resourceNamePrefix'), '-as')]",
     "storageAccountName": "[replace(concat(variables('resourceNamePrefix'), 'str'), '-', '')]",
     "workerAppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
