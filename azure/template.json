@@ -222,11 +222,11 @@
     }
   ],
   "outputs": {
-    "AppServiceName": {
+    "appServiceName": {
       "type": "string",
       "value": "[variables('appServiceName')]"
     },
-    "WorkerAppServiceName": {
+    "workerAppServiceName": {
       "type": "string",
       "value": "[variables('workerAppServiceName')]"
     }
