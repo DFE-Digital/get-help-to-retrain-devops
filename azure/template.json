@@ -44,12 +44,6 @@
         "description": "The email address to be used for psql security alerts."
       }
     },
-    "dockerHubUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "the username associated with the dockerhub account"
-      }
-    },
     "containerImageReference": {
       "type": "string",
       "metadata": {
@@ -79,7 +73,7 @@
     "workerAppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
     "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
     "databaseServerName": "[concat(variables('resourceNamePrefix'), '-psql')]",
-    "appServiceRuntimeStack": "[concat('DOCKER|', parameters('dockerHubUsername'), '/', parameters('containerImageReference'))]"
+    "appServiceRuntimeStack": "[concat('DOCKER|', parameters('containerImageReference'))]"
   },
   "resources": [
     {
@@ -221,7 +215,10 @@
             ]
           }
         }
-      }
+      },
+      "dependsOn": [
+        "app-service-plan"
+      ]
     }
   ],
   "outputs": {
