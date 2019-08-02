@@ -31,14 +31,11 @@
         },
         "thresholdPostgresStoragePercent": {
             "type": "string"
-        },
-        "activityLogAlertsName": {
-            "defaultValue": "ServiceHealthActivityLogAlert",
-            "type": "String"
         }
     },
     "variables": {
         "resourceNamePrefix": "[toLower(resourceGroup().name)]",
+        "activityLogAlertsName": "[concat(variables('resourceNamePrefix'), 'ActivityLogAlert')]",
         "deploymentUrlBase": "https://raw.githubusercontent.com/DFE-Digital/get-help-to-retrain-devops/master/templates/",
         "alertScope":"[concat('/','subscriptions','/',subscription().subscriptionId)]"
     },
@@ -292,7 +289,7 @@
         {
             "comments": "Service Health Activity Log Alert",
             "type": "microsoft.insights/activityLogAlerts",
-            "name": "[parameters('activityLogAlertsName')]",
+            "name": "[variables('activityLogAlertsName')]",
             "apiVersion": "2017-04-01",
             "location": "Global",
             "tags": {},
