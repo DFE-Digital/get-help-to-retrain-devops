@@ -35,7 +35,7 @@
     },
     "variables": {
         "resourceNamePrefix": "[toLower(resourceGroup().name)]",
-        "activityLogAlertsName": "[concat(variables('resourceNamePrefix'), 'ActivityLogAlert')]",
+        "activityLogAlertsName": "[concat(variables('resourceNamePrefix'),'-','ActivityLogAlert')]",
         "deploymentUrlBase": "https://raw.githubusercontent.com/DFE-Digital/get-help-to-retrain-devops/master/templates/",
         "alertScope":"[concat('/','subscriptions','/',subscription().subscriptionId)]"
     },
@@ -52,7 +52,7 @@
                 },
                 "parameters": {
                    "alertName": {
-                       "value": "[concat(variables('resourceNamePrefix'), 'active_connections')]"
+                       "value": "[concat(variables('resourceNamePrefix'),'-','active_connections')]"
                    },
                    "alertDescription": {
                        "value": "Active connections too high"
@@ -96,7 +96,7 @@
                 },
                 "parameters": {
                    "alertName": {
-                       "value": "[concat(variables('resourceNamePrefix'), 'cpu_percent')]"
+                       "value": "[concat(variables('resourceNamePrefix'),'-','cpu_percent')]"
                    },
                    "alertDescription": {
                        "value": "CPU percent too high"
@@ -140,7 +140,7 @@
                 },
                 "parameters": {
                    "alertName": {
-                    "value": "[concat(variables('resourceNamePrefix'), 'storage_percent')]"
+                    "value": "[concat(variables('resourceNamePrefix'),'-','storage_percent')]"
                     },
                    "alertDescription": {
                        "value": "Storage percent too high"
@@ -184,7 +184,7 @@
                 }, 
                 "parameters": {
                    "alertName": {
-                    "value": "[concat(variables('resourceNamePrefix'), 'AverageResponseTime')]"
+                    "value": "[concat(variables('resourceNamePrefix'),'-','AverageResponseTime')]"
                    },
                    "alertDescription": {
                        "value": "Average Response Time too high"
@@ -228,7 +228,7 @@
                 },
                 "parameters": {
                    "alertName": {
-                    "value": "[concat(variables('resourceNamePrefix'), 'Http5xx')]"
+                    "value": "[concat(variables('resourceNamePrefix'),'-','Http5xx')]"
                    },
                    "alertDescription": {
                        "value": "Http Server Errors too high"
