@@ -71,7 +71,7 @@
                     ]
                 }
             }
-        }
+        },
         {
             "apiVersion": "2019-04-01",
             "type": "Microsoft.Network/frontDoors",
@@ -102,7 +102,7 @@
                                 "@odata.type": "#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration",                                
                                 "forwardingProtocol": "MatchRequest",
                                 "backendPool": {
-                                    "id": "[resourceId('Microsoft.Network/frontDoors/backendPools', parameters('frontDoorName'), 'backendPool1')]"
+                                    "id": "[concat(variables('frontdoorref'),'/backendPools/backendPool1')]"
                                 }                                
                             },
                             "enabledState": "Enabled"
