@@ -67,7 +67,6 @@
                         {
                             "ruleSetType": "AzureManagedRuleSet",
                             "ruleSetVersion": "DefaultRuleSet_1.0",
-                            "priority": 1,
                             "ruleGroupOverrides": [
                                 {
                                     "ruleGroupOverride": "[parameters('ruleGroupOverride')]",
