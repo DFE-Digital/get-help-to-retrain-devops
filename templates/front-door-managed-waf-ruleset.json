@@ -65,8 +65,8 @@
                 "managedRules": {
                     "managedRuleSets": [
                         {
-                            "ruleSetType": "AzureManagedRuleSet",
-                            "ruleSetVersion": "DefaultRuleSet_1.0"
+                            "ruleSetType": "DefaultRuleSet",
+                            "ruleSetVersion": "1.0"
                         }
                     ]
                 }
