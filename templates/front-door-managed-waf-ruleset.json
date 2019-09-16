@@ -160,6 +160,10 @@
                             "sessionAffinityTtlSeconds": 60,
                             "webApplicationFirewallPolicyLink": {
                                 "id": "[variables('wafpolicyref')]"
+                            },
+                            "customHttpsConfiguration": {
+                                "certificateSource": "FrontDoor",
+                                "protocolType": "ServerNameIndication"
                             }
                         }
                     }
