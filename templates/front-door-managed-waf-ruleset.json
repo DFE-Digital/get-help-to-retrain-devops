@@ -167,7 +167,8 @@
                                     "vault": {
                                         "id": "/subscriptions/f35bd249-3028-48bd-9aab-d00e9d1a56b7/resourceGroups/s108d01-shared/providers/Microsoft.KeyVault/vaults/s108d01-shared-kv-01"
                                       },
-                                    "secretName": "sandbox-secretKeyBase"
+                                    "secretName": "nrs-ghtr-org-uk",
+    				    "secretVersion": "2db188daa4f9482eb149444b506e99cf"
                                 },
                                 "protocolType": "ServerNameIndication"
                             }
