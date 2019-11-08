@@ -13,7 +13,7 @@
       "allowedValues": [
         "Basic",
         "Standard",
-        "Premium"
+        "PremiumV2"
       ],
       "defaultValue": "Standard",
       "metadata": {
