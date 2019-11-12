@@ -8,26 +8,12 @@
         "description": "The name of the App Service Plan"
       }
     },
-    "appServicePlanTier": {
+    "sku":{
       "type": "string",
-      "allowedValues": [
-        "Basic",
-        "Standard",
-        "PremiumV2"
-      ],
-      "defaultValue": "Standard",
+      "defaultValue" : "S1",
       "metadata": {
-        "description": "The tier to use when building the App Service Plan"
+        "description": "The SKU of App Service Plan "
       }
-    },
-    "appServicePlanSize": {
-      "type": "string",
-      "allowedValues": [
-        "1",
-        "2",
-        "3"
-      ],
-      "defaultValue": "1"
     },
     "appServicePlanInstances": {
       "type": "int",
@@ -50,13 +36,10 @@
     {
       "type": "Microsoft.Web/serverfarms",
       "name": "[parameters('appServicePlanName')]",
-      "apiVersion": "2016-09-01",
+      "apiVersion": "2019-08-01",
       "location": "[resourceGroup().location]",
       "sku": {
-        "name": "[concat(take(parameters('appServicePlanTier'), 1), parameters('appServicePlanSize'))]",
-        "tier": "[parameters('appServicePlanTier')]",
-        "size": "[concat(take(parameters('appServicePlanTier'), 1), parameters('appServicePlanSize'))]",
-        "family": "[take(parameters('appServicePlanTier'), 1)]",
+        "name": "[parameters('sku')]",
         "capacity": "[parameters('appServicePlanInstances')]"
       },
       "kind": "[parameters('appServicePlanOS')]",
