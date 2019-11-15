@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "postgresServerName": {
@@ -39,8 +39,8 @@
       "name": "[parameters('postgresServerName')]",
       "type": "Microsoft.DBforPostgreSQL/servers",
       "apiVersion": "2017-12-01",
-      "location": "[resourceGroup().location]",
       "sku": "[parameters('postgresSku')]",
+      "location": "[resourceGroup().location]",
       "properties": {
         "storageProfile": {
           "storageMB": "[parameters('postgresSku').size]",

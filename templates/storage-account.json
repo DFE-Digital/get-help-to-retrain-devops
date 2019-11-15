@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountName": {
@@ -50,14 +50,14 @@
   "variables": {},
   "resources": [
     {
-      "apiVersion": "2018-02-01",
       "name": "[parameters('storageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",
-      "location": "[parameters('storageAccountLocation')]",
+      "apiVersion": "2018-02-01",
       "sku": {
         "name": "[parameters('accountType')]"
       },
       "kind": "[parameters('storageKind')]",
+      "location": "[parameters('storageAccountLocation')]",
       "tags": {},
       "properties": {
         "encryption": {
