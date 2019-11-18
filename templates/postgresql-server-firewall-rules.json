@@ -33,9 +33,11 @@
         "endIpAddress": "[parameters('ipAddresses')[copyIndex()]]"
       },
       "copy": {
+        "name": "firewallRuleCopy",
         "count": "[length(parameters('ipAddresses'))]",
-        "mode": "Parallel",
-        "name": "firewallRuleCopy"
+        "mode": "serial",
+        "batchSize": 1
+
       }
     }
   ],
