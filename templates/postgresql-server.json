@@ -29,6 +29,10 @@
     },
     "storageAccountName": {
       "type": "string"
+    },
+    "resourceTags": {
+      "type": "object",
+      "defaultValue": {}
     }
   },
   "variables": {
@@ -58,6 +62,7 @@
           "name": "[variables('securityAlertPolicyName')]",
           "type": "securityAlertPolicies",
           "apiVersion": "2017-12-01",
+          "tags": "[parameters('resourceTags')]",
           "properties": {
             "state": "Enabled",
             "disabledAlerts": [],

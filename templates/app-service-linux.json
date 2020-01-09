@@ -51,6 +51,10 @@
       "metadata": {
         "description": "Conditional use of slots when deploying webapp"
       }
+    },
+    "resourceTags": {
+      "type": "object",
+      "defaultValue": {}
     }
   },
   "variables": {
@@ -64,6 +68,7 @@
       "apiVersion": "2019-08-01",
       "kind": "app,linux,container",
       "location": "[resourceGroup().location]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "clientAffinityEnabled": false,
         "serverFarmId": "[variables('appServicePlanId')]",

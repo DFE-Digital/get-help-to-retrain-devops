@@ -29,6 +29,10 @@
       "metadata": {
         "description": "Windows or Linux"
       }
+    },
+    "resourceTags": {
+      "type": "object",
+      "defaultValue": {}
     }
   },
   "variables": {},
@@ -38,6 +42,7 @@
       "name": "[parameters('appServicePlanName')]",
       "apiVersion": "2019-08-01",
       "location": "[resourceGroup().location]",
+      "tags": "[parameters('resourceTags')]",
       "sku": {
         "name": "[parameters('sku')]",
         "capacity": "[parameters('appServicePlanInstances')]"
