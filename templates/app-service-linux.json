@@ -24,6 +24,10 @@
       "type": "array",
       "defaultValue": []
     },
+    "ipSecurityRestrictions": {
+      "type": "array",
+      "defaultValue": []
+    },
     "appServiceConnectionStrings": {
       "type": "array",
       "defaultValue": []
@@ -70,6 +74,7 @@
       "location": "[resourceGroup().location]",
       "tags": "[parameters('resourceTags')]",
       "properties": {
+        "ipSecurityRestrictions": "[parameters('ipSecurityRestrictions')]",
         "clientAffinityEnabled": false,
         "serverFarmId": "[variables('appServicePlanId')]",
         "siteConfig": {
