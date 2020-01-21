@@ -77,8 +77,8 @@
         "clientAffinityEnabled": false,
         "serverFarmId": "[variables('appServicePlanId')]",
         "siteConfig": {
-          "ipSecurityRestrictions": "[parameters('ipSecurityRestrictions')]",
           "alwaysOn": true,
+          "ipSecurityRestrictions": "[parameters('ipSecurityRestrictions')]",
           "appSettings": "[parameters('appServiceAppSettings')]",
           "connectionStrings": "[parameters('appServiceConnectionStrings')]",
           "linuxFxVersion": "[if(not(parameters('deploymentUsingSlots')), parameters('runtimeStack'), json('null'))]"
@@ -90,17 +90,17 @@
       "name": "[concat(parameters('appServiceName'), '/',  'staging')]",
       "condition": "[parameters('deploymentUsingSlots')]",
       "type": "Microsoft.Web/sites/slots",
-      "apiVersion": "2016-08-01",
+      "apiVersion": "2019-08-01",
       "location": "[resourceGroup().location]",
       "properties": {
         "clientAffinityEnabled": false,
         "serverFarmId": "[variables('appServicePlanId')]",
         "siteConfig": {
-          "ipSecurityRestrictions": "[parameters('ipSecurityRestrictions')]",
           "alwaysOn": false,
-          "linuxFxVersion": "[parameters('runtimeStack')]",
+          "ipSecurityRestrictions": "[parameters('ipSecurityRestrictions')]",
           "appSettings": "[parameters('appServiceAppSettings')]",
-          "connectionStrings": "[parameters('appServiceConnectionStrings')]"
+          "connectionStrings": "[parameters('appServiceConnectionStrings')]",
+          "linuxFxVersion": "[parameters('runtimeStack')]"
         },
         "httpsOnly": true
       },
